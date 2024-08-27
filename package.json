@@ -1,0 +1,18 @@
+{
+  "name": "splendor-wc",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "^1.1.6"
+  },
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "watch": "bun scripts/build.ts --watch"
+  },
+  "peerDependencies": {
+    "lit": "^3.1.4",
+    "typescript": "^5.0.0",
+    "filesize": "^10.1.4",
+    "urlpattern-polyfill": "^10.0.0"
+  }
+}
