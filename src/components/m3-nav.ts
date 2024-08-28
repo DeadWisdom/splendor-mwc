@@ -2,7 +2,6 @@ import { html, css, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { getMenuSize, type M3MenuItemConfig, type M3MenuSize } from '../data/menu';
 
-
 const exampleItems: M3MenuItemConfig[] = [
   { label: 'Inbox', icon: 'inbox_round', href: '/', badge: '124', priority: 'high' },
   { label: 'Outbox', icon: 'send_round', href: '/outbox', priority: 'high' },
@@ -56,11 +55,13 @@ export class M3Nav extends LitElement {
       border: none;
       cursor: pointer;
       position: relative;
+      z-index: 1;
     }
 
     .nav-item m3-icon {
-      align-self: stretch;
-      height: var(--m3-nav-icon-size, 32px);
+      box-sizing: border-box;
+      height: var(--m3-nav-icon-size, 24px);
+      width: var(--m3-nav-icon-size, 24px);
       display: flex;
     }
 
@@ -71,15 +72,20 @@ export class M3Nav extends LitElement {
     .nav-item[active], .nav-item:hover {
     }
 
-    .nav-item .indicator {
+    .nav-item:hover:after {
+      content: '';
       position: absolute;
       left: 0;
       right: 0;
       top: 0;
-      bottom: 0;
-      pointer-events: none;
-      border-radius: var(--md-sys-shape-corner-full, 16px);
+      height: var(--m3-nav-icon-size, 30px);
+      background-color: var(--md-sys-color-secondary-container, #EADDFF);
+      border-radius: var(--md-sys-shape-corner-medium, 8px);
       z-index: -1;
+    }
+
+    .nav-item::after {
+      
     }
 
     .nav-item[active] .indicator, .nav-item:hover .indicator {

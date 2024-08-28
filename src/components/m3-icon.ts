@@ -13,6 +13,11 @@ export class M3Icon extends LitElement {
       align-items: center;
       justify-content: center;
     }
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
   `;
 
   @state() svg: SVGElement | HTMLTemplateResult | null = null;
