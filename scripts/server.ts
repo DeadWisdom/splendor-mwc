@@ -1,13 +1,29 @@
 import { Glob } from "bun";
+import { Environment, FileSystemLoader } from "nunjucks";
 
 export function serveContent(root: string) {
   return Bun.serve({
     port: 3000,
     async fetch(req) {
       const path = new URL(req.url).pathname;
-      return await fileResponse(root, path) || await folderResponse(root, path) || new Response("Not found", { status: 404 });
+      return (
+        await templateResponse(root, path) ||
+        await fileResponse(root, path) ||
+        await folderResponse(root, path) ||
+        new Response("Not found", { status: 404 })
+      );
     },
   });
+}
+
+async function templateResponse(root: string, path: string) {
+  if (!path.endsWith('.html')) return null;
+
+  let env = new Environment(new FileSystemLoader(root), { autoescape: true });
+  let file = Bun.file(root + path);
+  let src = await file.text();
+  let html = env.renderString(src, {});
+  return new Response(html, { 'headers': { 'content-type': 'text/html' } });
 }
 
 async function fileResponse(root: string, path: string) {
