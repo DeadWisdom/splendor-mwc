@@ -1,4 +1,3 @@
-import { file } from 'bun';
 import { html, css, LitElement } from 'lit';
 import type { HTMLTemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
@@ -12,6 +11,7 @@ export class M3Icon extends LitElement {
       flex-direction: row;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
 
     svg {
@@ -55,7 +55,6 @@ export class M3Icon extends LitElement {
   }
 
   loadIconByName(name: string) {
-    console.log("loadIconByName", name)
     loadIcon(name).then(svg => {
       if (name != this.name) return;
       if (svg instanceof SVGElement) {
@@ -69,5 +68,11 @@ export class M3Icon extends LitElement {
 
   render() {
     return this.svg || html``;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "m3-icon": M3Icon;
   }
 }

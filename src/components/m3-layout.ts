@@ -1,5 +1,5 @@
-import { html, css, LitElement } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, html, css } from 'lit';
+import { customElement } from 'lit/decorators.js';
 
 @customElement('m3-layout')
 export class M3Layout extends LitElement {
@@ -28,5 +28,12 @@ export class M3Layout extends LitElement {
         <slot name="supporting"></slot>
       </div>
     `;
+  }
+}
+
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "m3-layout": M3Layout;
   }
 }

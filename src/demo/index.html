@@ -8,8 +8,26 @@
 
 {% block body %}
 <m3-layout variant="supporting-pane">
-  <m3-nav slot="nav" example></m3-nav>
-  <main>Hello</main>
+  <m3-nav slot="nav" example variant="drawer" mode="rail"></m3-nav>
+  <main>
+    <p>
+      <button onclick="document.querySelector('m3-nav').toggle()">Toggle</button>
+      <select id="variant" onchange="refresh()">
+        <option value="auto" selected>Auto</option>
+        <option value="rail">Rail</option>
+        <option value="drawer">Drawer</option>
+        <option value="modal">Modal</option>
+      </select>
+    </p>
+  </main>
   <aside slot="supporting"></aside>
 </m3-layout>
+
+<script>
+  function refresh() {
+    const variant = document.querySelector("#variant").value;
+    document.querySelector("m3-nav").variant = variant;
+    console.log(variant);
+  }
+</script>
 {% endblock %}

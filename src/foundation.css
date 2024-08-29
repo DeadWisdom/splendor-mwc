@@ -1,5 +1,20 @@
 :root {
   --md-sys-color-surface: #FEF7FF;
+  --md-sys-color-surface-container: #E8DEF8;
+  --md-sys-color-surface-container-low: #F7F2FA;
   --md-sys-color-secondary-container: #E8DEF8;
   --md-sys-color-primary-container: #EADDFF;
+
+  --md-sys-shape-corner-full: 100%;
+  --md-sys-shape-corner-medium: 8px;
+  --md-sys-shape-corner-large: 16px;
+
+  --m3-nav-icon-size: 24px;
+  --m3-time-quick: 150ms ease-in-out;
+  --m3-time: 300ms ease-in-out;
+  --m3-gap: 12px;
+}
+
+body {
+  background-color: var(--md-sys-color-surface);
 }
