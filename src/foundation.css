@@ -9,8 +9,12 @@
   --md-sys-shape-corner-medium: 8px;
   --md-sys-shape-corner-large: 16px;
 
+  --md-sys-elevation-level1: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --md-sys-elevation-level2: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --md-sys-elevation-level3: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
   --m3-nav-icon-size: 24px;
-  --m3-time-quick: 150ms ease-in-out;
+  --m3-time-quick: 200ms ease-in-out;
   --m3-time: 300ms ease-in-out;
   --m3-gap: 12px;
 }

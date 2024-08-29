@@ -1,39 +1,41 @@
 import { html, css, LitElement } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { getMenuSize, type M3MenuItemConfig, type M3MenuSize } from '../data/menu';
+import { customElement, property, state } from 'lit/decorators.js';
+import { getMenuSize, organizeMenuItems, type M3MenuItemConfig, type M3MenuSize } from '../data/menu';
 import { navItemStyles } from '../style/nav-item.style';
-import { largeFont } from '../style/type.style';
-
-const exampleItems: M3MenuItemConfig[] = [
-  { label: 'Inbox', icon: 'inbox_round', href: '/', badge: '124', priority: 'high' },
-  { label: 'Outbox', icon: 'send_round', href: '/outbox', priority: 'high' },
-  { label: 'Favorites', icon: 'favorite_round', href: '/favorites', priority: 'high' },
-  { label: 'Recent', icon: 'schedule_round', href: '/recent' },
-  { label: 'Trash', icon: 'delete_round', href: '/favorites' },
-  { label: 'Friends', icon: 'folder_round', href: '/folders/friends', priority: 'low' },
-  { label: 'Volunteering', icon: 'folder_round', href: '/folders/volunteering', priority: 'low' },
-  { label: 'Work', icon: 'folder_round', href: '/folders/work', priority: 'low' },
-  { label: 'New', icon: 'add_round', href: '/add', variant: 'fab' },
-];
+import { largeFont, mediumFont } from '../style/type.style';
+import { M3BreakpointController } from '../controllers/m3-breakpoint-controller';
+import { applyRules } from '../rules';
+import { compareBreakpoints, type M3MediaBreakpoint } from '../data/breakpoints';
 
 export type M3NavVariant = 'auto' | 'modal' | 'rail' | 'drawer';
 export type M3NavMode = 'hidden' | 'bar' | 'rail' | 'drawer' | 'overlay';
 
 @customElement('m3-nav')
 export class M3Nav extends LitElement {
-  @property({ type: String, reflect: true }) variant: M3NavVariant = 'auto';
+  _breaks = new M3BreakpointController(this, (bp: M3MediaBreakpoint) => {
+    this.breakpoint = bp;
+  });
+
+  @property({ type: String, reflect: true }) variant: M3NavVariant = 'drawer';
 
   @property({ type: Array }) items?: M3MenuItemConfig[];
 
-  @property({ type: Boolean }) example?: boolean;
+  @property({ type: String, reflect: true }) headline?: string;
 
   @property({ type: String, reflect: true }) size?: M3MenuSize;
 
-  @property({ type: String, reflect: true }) limit?: M3MenuSize;
+  @property({ type: String, reflect: true }) limit?: M3MenuSize | string = '5';
 
-  @property({ type: String, reflect: true }) mode: M3NavMode = 'rail';
+  @property({ type: String, reflect: true }) mode: M3NavMode = 'drawer';
+
+  @property({ type: String, reflect: true }) breakpoint: M3MediaBreakpoint = 'medium';
+
+  @property({ type: String, reflect: true, attribute: 'breakpoint-drawer' }) breakpointDrawer: M3MediaBreakpoint = 'expanded';
 
   @property({ type: Boolean, reflect: true }) open = false;
+
+  @state() _drawerOpen = false;
+  @state() _filteredItems?: M3MenuItemConfig[];
 
   static styles = [css`
     :host {
@@ -57,7 +59,6 @@ export class M3Nav extends LitElement {
       display: flex;
       flex-grow: 1;
       flex-direction: column;
-      gap: var(--m3-gap);
       padding: var(--m3-gap) 0;
       background-color: var(--md-sys-color-surface);
       z-index: 1;
@@ -72,6 +73,24 @@ export class M3Nav extends LitElement {
       gap: 0;
       padding: 0 var(--m3-gap);
       transition: background-color, gap var(--m3-time-quick);
+    }
+
+    .header-container {
+      flex-shrink: 0;
+      flex-grow: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--m3-gap);
+      transition: none;
+      min-height: var(--m3-nav-item-width, 56px);
+    }
+
+    .header {
+      padding: 0 var(--m3-gap);
+      margin: 0 var(--m3-gap);
+
+      ${mediumFont}
     }
 
     .button {
@@ -93,6 +112,7 @@ export class M3Nav extends LitElement {
       width: var(--m3-nav-item-width, 56px);
       justify-content: center;
       margin: 0 var(--m3-gap);
+      flex-shrink: 0; 
       aspect-ratio: 1;
     }
   
@@ -120,11 +140,11 @@ export class M3Nav extends LitElement {
       border-radius: var(--md-sys-shape-corner-large, 16px);
       background-color: var(--md-sys-color-primary-container, #EADDFF);
       max-height: var(--m3-item-width, 56px);
-      gap:  var(--m3-gap);
+      gap: var(--m3-gap);
       aspect-ratio: 1;
       text-decoration: none;
       color: var(--md-sys-color-on-primary-container, #4F378B);
-      margin: 0 var(--m3-gap);
+      margin: var(--m3-gap);
       flex-shrink: 0;
       
       ${largeFont}
@@ -179,6 +199,15 @@ export class M3Nav extends LitElement {
       width: var(--m3-drawer-width);
     }
 
+    :host([open]) .toggle {
+      display: none;
+    }
+
+    /* Drawer */
+    :host([open][variant=drawer][mode=drawer]) .toggle {
+      display: flex;
+    }
+
     /* Rail */
     :host([mode=rail]) {
       width: var(--m3-nav-rail-width, 80px);
@@ -201,8 +230,61 @@ export class M3Nav extends LitElement {
     :host([mode=rail]) .spacer {
       flex-shrink: 1;
       flex-grow: 1; 
-      max-height: 20vh;
+      max-height: 5vh;
       transition: all var(--m3-time-quick);
+    }
+
+    /* Bar */
+    :host([mode=bar]) {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      top: auto;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      max-width: none;
+      width: auto;
+    }
+
+    :host([mode=bar]) .container {
+      overflow: hidden;
+      padding: 0;
+    }
+    
+    :host([mode=bar]) .item-container {
+      flex-direction: row;
+      justify-content: space-around;
+      padding: var(--m3-gap);
+      background-color: var(--md-sys-color-surface-container);
+    }
+    
+    :host([mode=bar]) .toggle {
+      display: none;
+    }
+    
+    :host([mode=bar]) .header-container {
+      display: none;
+    }
+
+    :host([mode=bar]) .spacer {
+      display: none;
+    }
+    
+    :host([mode=bar]) .fab {
+      aspect-ratio: 1;
+      width: var(--m3-nav-item-width, 56px);
+      align-self: flex-end;
+      box-shadow: var(--md-sys-elevation-level3);
+    } 
+
+    :host([mode=bar]) .fab span {
+      display: none;
+    }
+
+    /* Auto */
+    :host([variant=auto][mode=drawer]) .toggle {
+      display: none;
     }
 
     /* Misc */
@@ -210,20 +292,28 @@ export class M3Nav extends LitElement {
       display: none;
     }
 
+    /* Breakpoints */
+    :host([mode=rail][breakpoint=medium]) .spacer {
+      max-height: 40vh;
+    }
+
+    :host([mode=rail][breakpoint=medium]) .scrim {
+      max-height: 40vh;
+    }
+
+    /* Size */
+    :host([variant=rail][size=empty]) .toggle,
+    :host([variant=rail][size=small]) .toggle,
+    :host([variant=rail][size=medium]) .toggle {
+      display: none;
+    }
   `,
     navItemStyles];
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    if (this.example) {
-      this.items = exampleItems;
-    }
-  }
 
   filterItems() {
     if (!this.items) return [];
 
-    return this.items.filter(item => item.variant !== 'fab');
+    return organizeMenuItems(this.items, { max: this.limit });
   }
 
   filterFabs() {
@@ -233,16 +323,10 @@ export class M3Nav extends LitElement {
   }
 
   update(changes: Map<string, any>) {
-    if (changes.has('items')) {
-      this.size = getMenuSize(this.items?.filter(item => item.variant !== 'fab'));
-    }
-    if (changes.has('variant')) {
-      this.refreshVariant();
-    }
-    super.update(changes);
+    applyRules(M3NavRuleSet, this, changes); super.update(changes);
   }
 
-  updated(changes: Map<string, any>) {
+  x_updated(changes: Map<string, any>) {
     if (changes.has('mode')) {
       requestAnimationFrame(() => {
         this.open = (this.mode == 'overlay');
@@ -250,22 +334,11 @@ export class M3Nav extends LitElement {
     }
   }
 
-  refreshVariant() {
-    if (this.variant === 'auto') {
-      this.mode = 'drawer';
-    }
-    else if (this.variant === 'modal') {
-      this.mode = 'hidden';
-    }
-    else if (this.variant === 'rail') {
-      this.mode = 'rail';
-    }
-    else if (this.variant === 'drawer' && this.mode !== 'rail') {
-      this.mode = 'drawer';
-    }
-  }
-
   toggle = () => {
+    this.open = !this.open;
+    this._drawerOpen = this.open;
+    return;
+
     if (this.mode === 'hidden' || (this.variant === 'rail' && this.mode === 'rail')) {
       this.mode = 'overlay';
     }
@@ -290,12 +363,15 @@ export class M3Nav extends LitElement {
     }
 
     let fabs = this.items.filter(item => item.variant === 'fab');
-    let items = this.items.filter(item => item.variant !== 'fab');
+    let items = this._filteredItems || this.items.filter(item => item.variant !== 'fab');
 
     return html`
       ${this.renderScrim()}
       <div class="container">
-        ${this.renderVeggieBurger()}
+        <div class="header-container">
+          ${this.renderHeader()}
+          ${this.renderVeggieBurger()}
+        </div>
         ${fabs.map(item => this.renderFab(item))}
         <div class="spacer"></div>
         <div class="item-container">
@@ -305,18 +381,23 @@ export class M3Nav extends LitElement {
     `;
   }
 
+  renderHeader() {
+    if (this.mode == 'rail') return;
+    return html`
+      <div class="header">
+        <slot name="header">${this.headline}</slot>
+      </div>`;
+  }
+
   renderScrim() {
     if (this.mode !== 'overlay') return;
     return html`<div class="scrim" @click=${this.toggle}></div>`;
   }
 
   renderVeggieBurger() {
-    if (this.mode === 'overlay') return;
-    if (this.variant !== 'drawer' && this.variant !== 'rail') return;
     let icon = this.mode == 'drawer' ? 'menu_open_round' : 'menu_round';
-    let placement = this.mode == 'drawer' ? 'end' : 'start';
     return html`
-      <button class="toggle button" @click=${this.toggle} placement=${placement}>
+      <button class="toggle button" @click=${this.toggle}>
         <m3-icon name=${icon}></m3-icon>
       </button>
     `;
@@ -347,5 +428,83 @@ export class M3Nav extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "m3-nav": M3Nav;
+  }
+}
+
+function isRoomy(nav: M3Nav) {
+  return compareBreakpoints(nav.breakpoint, nav.breakpointDrawer) >= 0;
+}
+
+const M3NavRuleSet = {
+  itemsArePrioritized(nav: M3Nav, changes: Map<string, any>) {
+    if (changes.has('items') || changes.has('limit')) {
+      nav._filteredItems = nav.filterItems();
+      nav.size = getMenuSize(nav.items?.filter(item => item.variant !== 'fab'));
+    }
+  },
+
+  railDefault(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.variant !== 'rail') return;
+
+    nav.mode = nav.open ? 'overlay' : 'rail';
+  },
+
+  drawerDefault(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.variant !== 'drawer') return;
+
+    nav.mode = nav.open ? 'drawer' : 'rail';
+  },
+
+  autoDefault(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.variant !== 'auto') return;
+
+    nav.mode = 'drawer';
+  },
+
+  modalAutoModal(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.variant !== 'modal') return;
+
+    nav.mode = nav.open ? 'overlay' : 'hidden';
+  },
+
+  expandDrawerIfRoomAndOpen(nav: M3Nav, changes: Map<string, any>) {
+    if (!changes.has('breakpoint')) return;
+    if (nav.variant !== 'drawer') return;
+    if (!nav._drawerOpen) return;
+    if (!isRoomy(nav)) return;
+
+    nav.open = true;
+    nav.mode = 'drawer';
+  },
+
+  collapseDrawerIfNoRoomAndOpen(nav: M3Nav, changes: Map<string, any>) {
+    if (!changes.has('breakpoint')) return;
+    if (nav.variant !== 'drawer') return;
+    if (nav.mode !== 'drawer') return;
+    if (!nav.open) return;
+    if (isRoomy(nav)) return;
+
+    nav.open = false;
+    nav.mode = 'rail';
+  },
+
+  scaleDrawer(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.mode !== 'drawer') return;
+    if (isRoomy(nav)) return;
+
+    nav.mode = 'rail';
+  },
+
+  scaleRail(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.mode !== 'rail') return;
+    if (nav.breakpoint !== 'compact') return;
+
+    nav.mode = 'bar';
+  },
+
+  overlayIfNoRoom(nav: M3Nav, changes: Map<string, any>) {
+    if (nav.open && !isRoomy(nav)) {
+      nav.mode = 'overlay';
+    }
   }
 }

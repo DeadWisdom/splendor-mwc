@@ -8,15 +8,29 @@
 
 {% block body %}
 <m3-layout variant="supporting-pane">
-  <m3-nav slot="nav" example variant="drawer" mode="rail"></m3-nav>
+  <m3-nav slot="nav">
+    <span slot="header">Demo</span>
+  </m3-nav>
   <main>
     <p>
       <button onclick="document.querySelector('m3-nav').toggle()">Toggle</button>
+    </p>
+    <p>
       <select id="variant" onchange="refresh()">
-        <option value="auto" selected>Auto</option>
+        <option value="auto">Auto</option>
         <option value="rail">Rail</option>
-        <option value="drawer">Drawer</option>
+        <option value="drawer" selected>Drawer</option>
         <option value="modal">Modal</option>
+      </select>
+    </p>
+    <p>
+      <select id="examples" onchange="refresh()">
+        <option value="lots" selected>Lots of items</option>
+        <option value="seven">Seven items - no fab</option>
+        <option value="five">Five items - no fab</option>
+        <option value="three">Three items - no fab</option>
+        <option value="sevenFab">Seven items + fab</option>
+        <option value="threeFab">Three items + fab</option>
       </select>
     </p>
   </main>
@@ -24,10 +38,45 @@
 </m3-layout>
 
 <script>
+  let newFab = { label: 'New', icon: 'add_round', href: '/add', variant: 'fab' };
+
+  let lots = [
+    { label: 'Inbox', icon: 'inbox_round', href: '/', badge: '124', priority: 'high' },
+    { label: 'Outbox', icon: 'send_round', href: '/outbox', priority: 'low' },
+    { label: 'Favorites', icon: 'favorite_round', href: '/favorites', priority: 'high' },
+    { label: 'Recent', icon: 'schedule_round', href: '/recent' },
+    { label: 'Trash', icon: 'delete_round', href: '/favorites' },
+    { label: 'Friends', icon: 'folder_round', href: '/folders/friends' },
+    { label: 'Volunteering', icon: 'folder_round', href: '/folders/volunteering' },
+    { label: 'Work', icon: 'folder_round', href: '/folders/work' },
+    { label: 'Recipes', icon: 'folder_round', href: '/folders/recipe' },
+    { label: 'Music', icon: 'folder_round', href: '/folders/music' },
+    newFab,
+  ];
+
+  let seven = lots.slice(0, 7).map(item => ({ ...item, priority: undefined }));
+  let five = lots.slice(0, 5).map(item => ({ ...item, priority: undefined }));
+  let three = lots.slice(0, 3).map(item => ({ ...item, priority: undefined }));
+  let threeFab = [...three, newFab];
+  let fiveFab = [...five, newFab];
+  let sevenFab = [...seven, newFab];
+
+  const exampleSets = {
+    lots,
+    seven,
+    five,
+    three,
+    sevenFab,
+    fiveFab,
+    threeFab,
+  };
+
   function refresh() {
-    const variant = document.querySelector("#variant").value;
-    document.querySelector("m3-nav").variant = variant;
-    console.log(variant);
+    let nav = document.querySelector("m3-nav");
+    nav.variant = document.querySelector("#variant").value;
+    nav.items = exampleSets[document.querySelector("#examples").value];
   }
+
+  refresh();
 </script>
 {% endblock %}

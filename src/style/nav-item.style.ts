@@ -70,4 +70,26 @@ export const navItemStyles = css`
     bottom: auto;
     border-radius: var(--md-sys-shape-corner-medium);
   }
+
+  /* Bar */
+  :host([mode=bar]) .item {
+    flex-direction: column;
+    justify-content: center;
+    height: auto;
+    padding: var(--m3-nav-item-padding-rail);
+    gap: var(--m3-nav-item-padding-rail);
+
+    ${mediumFont}
+  }
+
+  :host([mode=bar]) .item[priority="low"],
+  :host([mode=bar]) .item[priority="normal"] {
+    display: none;
+  }
+  
+  :host([mode=bar]) .item:hover:after, :host([mode=rail]) .item[active]:after {
+    height: var(--m3-nav-rail-indicator-size);
+    bottom: auto;
+    border-radius: var(--md-sys-shape-corner-medium);
+  }
 `;
