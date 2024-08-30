@@ -70,8 +70,6 @@ export function organizeMenuItems(items: M3MenuItemConfig[], options: M3MenuOrga
     return { ...item, priority: item.priority as M3MenuItemPriority || 'normal' };
   });
 
-  console.log('high', results);
-
   // Allow further normal priority items up to max, lower the rest
   results = results.map(item => {
     if (count >= max && item.priority === 'normal') {
@@ -82,8 +80,6 @@ export function organizeMenuItems(items: M3MenuItemConfig[], options: M3MenuOrga
     }
     return item;
   });
-
-  console.log('normal', results);
 
   if (!options.promoteLow) return results;
 

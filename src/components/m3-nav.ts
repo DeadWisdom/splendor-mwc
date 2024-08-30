@@ -45,7 +45,7 @@ export class M3Nav extends LitElement {
       --m3-nav-icon-size: 24px;
       --m3-nav-item-padding: var(--m3-gap);
       --m3-nav-item-padding-rail: 4px;
-      --m3-nav-rail-indicator-size: 30px;
+      --m3-nav-rail-indicator-size: 31px;
 
       display: flex;
       flex-direction: column;
