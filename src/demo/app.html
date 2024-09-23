@@ -1,0 +1,38 @@
+{% set title = "Splendor &middot; Demos" %}
+{% extends "demo/_base.html" %}
+
+{% block head %}
+<script type="module" src="/index.js"></script>
+<link rel="stylesheet" href="/foundation.css" />
+<script>
+  window.M3Routes = [
+    { name: 'app', pattern: '/demo/app.html', view: (params) => html`App Demo Page` },
+    { name: 'about', pattern: '/demo/app/about.html', view: (params) => html`About Page` },
+    { name: 'fallback', pattern: '*/app/*', view: (params) => html`Fallback` }
+  ]
+</script>
+{% endblock %}
+
+{% block body %}
+<m3-app>
+  <style remove-me>
+    m3-app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+      padding: 5ch;
+    }
+  </style>
+  <nav>
+    <a href="/demo/app.html" icon="home">Home</a>
+    <a href="/demo/app/about.html" icon="info">About</a>
+    <a href="/demo/app/contact.html" icon="mail">Contact</a>
+  </nav>
+  <main class="m3-pane">
+    APP PAGE
+  </main>
+  <aside class="m3-pane">
+    ASIDE
+  </aside>
+</m3-app>
+{% endblock %}

@@ -81,7 +81,7 @@ async function fetchSVG(url: string): Promise<SVGElement | null> {
   try {
     fileData = await fetch(url, { mode: 'cors' });
     if (!fileData.ok) {
-      if (fileData.status === 410) return null;
+      if (fileData.status === 410 || fileData.status === 404) return null;
       throw new IconFetchError(fileData.statusText);
     }
   } catch (e: any) {

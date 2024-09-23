@@ -1,5 +1,5 @@
 import { css } from "lit";
-import { largeFont, mediumFont } from "./type.style";
+import { largeFont, mediumFont, smallFont } from "./type.style";
 
 export const navItemStyles = css`
   .item {
@@ -79,7 +79,7 @@ export const navItemStyles = css`
     padding: var(--m3-nav-item-padding-rail);
     gap: var(--m3-nav-item-padding-rail);
 
-    ${mediumFont}
+    ${smallFont}
   }
 
   :host([mode=bar]) .item[priority="low"],

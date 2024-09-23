@@ -1,6 +1,6 @@
 :root {
   --md-sys-color-surface: #FEF7FF;
-  --md-sys-color-surface-container: #E8DEF8;
+  --md-sys-color-surface-container: #F0F4F9;
   --md-sys-color-surface-container-low: #F7F2FA;
   --md-sys-color-secondary-container: #E8DEF8;
   --md-sys-color-primary-container: #EADDFF;
@@ -17,8 +17,28 @@
   --m3-time-quick: 200ms ease-in-out;
   --m3-time: 300ms ease-in-out;
   --m3-gap: 12px;
+  --m3-gap-negative: -12px;
 }
 
 body {
   background-color: var(--md-sys-color-surface);
+}
+
+.m3-pane {
+  background-color: var(--md-sys-color-surface-container-low);
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: var(--m3-gap);
+  margin: 0;
+  min-width: 500px;
+}
+
+main.m3-pane {
+  flex-grow: 1;
+}
+
+@media screen and (max-width: 1200px) {
+  .m3-pane {
+    min-width: none;
+    flex-grow: 1;
+  }
 }
